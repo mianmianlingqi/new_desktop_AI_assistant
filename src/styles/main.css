@@ -10,8 +10,8 @@
   --bg-tertiary: rgba(40, 44, 58, 0.9);
   --bg-hover: rgba(50, 55, 70, 0.8);
   --text-primary: #e8e8ec;
-  --text-secondary: #a0a4b8;
-  --text-muted: #6b7080;
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  --text-muted: rgba(255, 255, 255, 0.72);
   --accent: #00d4aa;
   --accent-hover: #00f0c0;
   --accent-dim: rgba(0, 212, 170, 0.15);
@@ -21,6 +21,7 @@
   --border-light: rgba(255, 255, 255, 0.12);
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --text-shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.35);
   --radius: 12px;
   --radius-sm: 8px;
   --radius-xs: 6px;
@@ -110,13 +111,13 @@ body.has-bg-image {
 
 /* 亚克力模式下各组件调整为半透明，透出模糊背景 */
 body.has-bg-image .titlebar {
-  background: rgba(12, 14, 20, 0.42);
+  background: rgba(12, 14, 20, 0.52);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 body.has-bg-image .input-container {
-  background: rgba(12, 14, 20, 0.42);
+  background: rgba(12, 14, 20, 0.52);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -185,9 +186,23 @@ body.has-bg-image .settings-footer {
 
 .titlebar-title {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: #fff;
   letter-spacing: 0.3px;
+  text-shadow: var(--text-shadow-soft);
+}
+
+.titlebar-version {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 11px;
+  line-height: 1;
+  text-shadow: var(--text-shadow-soft);
 }
 
 .titlebar-right {
@@ -205,7 +220,7 @@ body.has-bg-image .settings-footer {
   justify-content: center;
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.82);
   cursor: pointer;
   border-radius: var(--radius-xs);
   transition: var(--transition);
@@ -276,32 +291,42 @@ body.collapsed {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  align-self: center;
+  width: min(100%, 360px);
   flex: 1;
   text-align: center;
-  padding: 40px 20px;
-}
-
-.welcome-emoji {
-  font-size: 48px;
-  margin-bottom: 12px;
+  margin: auto 0;
+  padding: 34px 24px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(10, 16, 28, 0.32), rgba(10, 16, 28, 0.48));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
 }
 
 .welcome-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 8px;
+  font-size: 34px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 10px;
+  line-height: 1.05;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.94);
+  margin-bottom: 10px;
+  line-height: 1.5;
+  text-shadow: var(--text-shadow-soft);
 }
 
 .welcome-hint {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.55;
+  text-shadow: var(--text-shadow-soft);
 }
 
 /* 消息气泡 */
@@ -528,7 +553,7 @@ body.collapsed {
   justify-content: center;
   background: none;
   border: 1px solid var(--border-light);
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   border-radius: var(--radius-sm);
   transition: var(--transition);
@@ -549,10 +574,10 @@ body.collapsed {
 .message-input {
   width: 100%;
   padding: 8px 12px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-light);
+  background: rgba(19, 24, 36, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--radius-sm);
-  color: var(--text-primary);
+  color: #fff;
   font-family: var(--font-family);
   font-size: 13.5px;
   resize: none;
@@ -568,7 +593,7 @@ body.collapsed {
 }
 
 .message-input::placeholder {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .send-btn {

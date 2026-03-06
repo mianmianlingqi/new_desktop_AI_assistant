@@ -1,6 +1,6 @@
 {
   "name": "desktop-ai-assistant",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "悬浮窗式桌面AI助手 - 支持API对接、图片上传、一键截屏",
   "main": "main.js",
   "scripts": {
