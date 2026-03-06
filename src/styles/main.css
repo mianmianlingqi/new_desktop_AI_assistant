@@ -50,6 +50,8 @@ html, body {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   border-radius: var(--radius);
@@ -64,9 +66,9 @@ body {
 
 /* 背景图片层：调用 filter:blur 对图片本身模糊，inset:-40px 防止模糊边缘出现白边 */
 .bg-image-layer {
-  position: fixed;
-  inset: -40px;
-  z-index: -2;
+  position: absolute;
+  inset: -28px;
+  z-index: 0;
   pointer-events: none;
   background-size: cover;
   background-position: center;
@@ -78,14 +80,21 @@ body {
 
 /* 遮罩层：半透明深色覆盖，形成磁磁鸽嚟的亚克力质感 */
 .bg-mask-layer {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   border-radius: var(--radius);
   background: rgba(14, 16, 23, var(--acrylic-mask, 0.55));
   transition: background 0.4s ease;
   display: none;
+}
+
+.titlebar,
+.main-container,
+.settings-overlay {
+  position: relative;
+  z-index: 1;
 }
 
 /* 激活亚克力模式：显示背景层 */
@@ -237,6 +246,10 @@ body.collapsed {
 .titlebar.collapsed {
   border-radius: var(--radius);
   border-bottom: none;
+}
+
+body.collapsed {
+  backdrop-filter: none;
 }
 
 /* ======== 主内容区域 ======== */

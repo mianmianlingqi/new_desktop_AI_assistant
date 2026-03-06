@@ -15,6 +15,8 @@ const state = {
   pendingBgImage: null   // 设置面板中待保存的背景图 base64（null=未更改、''=已清除）
 };
 
+const DEFAULT_BG_IMAGE_PATH = '../360bdc321987daa2012b50e97acea4f7853cfaec_raw.jpg';
+
 // ============ DOM 元素引用 ============
 const elements = {
   chatContainer: document.getElementById('chat-container'),
@@ -162,7 +164,8 @@ function toggleCollapse() {
     elements.collapseIcon.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
     elements.btnCollapse.title = '展开';
     // 通知主进程缩小窗口（collapsed=true 先解除最小高度限制）
-    window.electronAPI.setWindowHeight(42, true);
+    const collapsedHeight = Math.ceil(elements.titlebar.getBoundingClientRect().height + 2);
+    window.electronAPI.setWindowHeight(collapsedHeight, true);
   } else {
     // 展开：先恢复窗口高度
     const targetHeight = state.expandedHeight || 650;
@@ -472,8 +475,8 @@ async function openSettings() {
     elements.btnClearBg.style.display = 'flex';
     elements.acrylicControls.style.display = 'flex';
   } else {
-    elements.bgPreviewImg.src = '';
-    elements.bgPreviewWrap.style.display = 'none';
+    elements.bgPreviewImg.src = DEFAULT_BG_IMAGE_PATH;
+    elements.bgPreviewWrap.style.display = 'block';
     elements.btnClearBg.style.display = 'none';
     elements.acrylicControls.style.display = 'none';
   }
@@ -729,8 +732,8 @@ async function pickBgImage() {
  */
 function clearBgImage() {
   state.pendingBgImage = '';   // 空字符串表示"用户主动清除"
-  elements.bgPreviewImg.src = '';
-  elements.bgPreviewWrap.style.display = 'none';
+  elements.bgPreviewImg.src = DEFAULT_BG_IMAGE_PATH;
+  elements.bgPreviewWrap.style.display = 'block';
   elements.btnClearBg.style.display = 'none';
   elements.acrylicControls.style.display = 'none';
 }
@@ -741,21 +744,16 @@ function clearBgImage() {
  */
 function applyBackground(config) {
   const bgImageLayer = elements.bgImageLayer;
-  const bgMaskLayer = elements.bgMaskLayer;
+  const useCustomImage = Boolean(config.bgImage);
+  const imageUrl = useCustomImage
+    ? `url(data:image/jpeg;base64,${config.bgImage})`
+    : `url(${DEFAULT_BG_IMAGE_PATH})`;
 
-  if (config.bgImage) {
-    // 设置亚克力 CSS 变量
-    document.documentElement.style.setProperty('--acrylic-blur', `${config.bgBlur !== undefined ? config.bgBlur : 10}px`);
-    document.documentElement.style.setProperty('--acrylic-mask', config.bgMaskOpacity !== undefined ? config.bgMaskOpacity : 0.55);
-    // 将 base64 图片设置到背景图层
-    bgImageLayer.style.backgroundImage = `url(data:image/jpeg;base64,${config.bgImage})`;
-    // 激活亚克力模式
-    document.body.classList.add('has-bg-image');
-  } else {
-    // 清除背景图并关闭亚克力模式
-    bgImageLayer.style.backgroundImage = '';
-    document.body.classList.remove('has-bg-image');
-  }
+  // 设置亚克力 CSS 变量
+  document.documentElement.style.setProperty('--acrylic-blur', `${config.bgBlur !== undefined ? config.bgBlur : 10}px`);
+  document.documentElement.style.setProperty('--acrylic-mask', config.bgMaskOpacity !== undefined ? config.bgMaskOpacity : 0.55);
+  bgImageLayer.style.backgroundImage = imageUrl;
+  document.body.classList.add('has-bg-image');
 }
 
 /**

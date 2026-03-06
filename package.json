@@ -6,9 +6,9 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:dir": "electron-builder --dir"
+    "build": "node scripts/safe-build.js",
+    "build:win": "node scripts/safe-build.js --win",
+    "build:dir": "node scripts/safe-build.js --dir"
   },
   "build": {
     "appId": "com.desktop.ai-assistant",
@@ -19,7 +19,9 @@
     "files": [
       "main.js",
       "preload.js",
+      "scripts/**/*",
       "src/**/*",
+      "360bdc321987daa2012b50e97acea4f7853cfaec_raw.jpg",
       "node_modules/**/*",
       "package.json"
     ],

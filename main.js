@@ -8,6 +8,8 @@ const path = require('path');
 const fs = require('fs');
 const Store = require('electron-store');
 
+const DEFAULT_COLLAPSED_HEIGHT = 40;
+
 // 初始化配置存储
 const store = new Store({
   defaults: {
@@ -630,8 +632,9 @@ ipcMain.on('set-window-height', (event, { height, collapsed }) => {
     const [width] = mainWindow.getSize();
     if (collapsed) {
       // 折叠：先解除最小高度限制，再缩小窗口
-      mainWindow.setMinimumSize(350, 38);
-      mainWindow.setSize(width, height, true);
+      const targetHeight = Math.max(DEFAULT_COLLAPSED_HEIGHT, Math.ceil(height));
+      mainWindow.setMinimumSize(350, DEFAULT_COLLAPSED_HEIGHT);
+      mainWindow.setSize(width, targetHeight, true);
     } else {
       // 展开：先放大窗口，再恢复最小高度限制
       mainWindow.setSize(width, height, true);

@@ -20,3 +20,28 @@
 # 请在该行以下清楚的表示该项目的文件结构，并注明每个文件的作用，请在每次编程任务完成后更新该文件结构说明，以便团队成员更好地理解项目的组织和各个组件的功能，促进更高效的协作和维护。
 # 项目文件结构：
 ```
+new_desktop_AI_assistant/
+├── 360bdc321987daa2012b50e97acea4f7853cfaec_raw.jpg   # 默认亚克力背景图，打包时随应用分发
+├── main.js                                           # Electron 主进程，窗口、托盘、IPC 与截图逻辑
+├── preload.js                                        # 预加载桥接，向渲染进程暴露安全 API
+├── package.json                                      # 项目依赖、脚本与 electron-builder 配置
+├── package-lock.json                                 # npm 依赖锁文件
+├── README.md                                         # 项目说明文档
+├── .gitignore                                        # Git 忽略规则
+├── src/
+│   ├── index.html                                    # 主界面 HTML，含聊天区与设置面板
+│   ├── screenshot.html                               # 区域截图选择窗口页面
+│   ├── assets/
+│   │   ├── .gitkeep                                  # 空目录占位文件
+│   │   └── icon.png                                  # 应用图标
+│   ├── scripts/
+│   │   ├── renderer.js                               # 渲染进程交互、设置保存、背景图效果逻辑
+│   │   └── screenshot-region.js                      # 区域截图框选逻辑
+│   └── styles/
+│       └── main.css                                  # 主界面样式与亚克力效果样式
+├── scripts/
+│   └── safe-build.js                                 # 安全打包脚本，构建期间隔离本机敏感配置
+└── .github/
+	├── copilot-instructions.md                       # Copilot 协作与项目结构规范
+	└── agents/                                       # 自定义蜂后/工蜂 Agent 配置
+```
