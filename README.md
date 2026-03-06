@@ -71,55 +71,31 @@ npm run build:dir
 
 ```
 new_desktop_AI_assistant/
-│
-├── main.js                        # Electron 主进程入口
-│                                  # 负责：窗口管理、系统托盘、IPC 通信、截屏调度、代理配置
-│
-├── preload.js                     # 预加载脚本
-│                                  # 通过 contextBridge 向渲染进程安全暴露主进程 API
-│
-├── package.json                   # 项目元信息、依赖声明、构建配置（electron-builder）
-├── package-lock.json              # 依赖锁定文件
-├── .gitignore                     # Git 忽略规则
-│
-├── src/                           # 前端源代码目录
-│   ├── index.html                 # 主窗口页面（聊天界面、设置面板）
-│   ├── screenshot.html            # 截屏区域选择窗口页面
-│   │
-│   ├── assets/                    # 静态资源目录
-│   │   └── icon.png               # 应用图标（托盘 & 窗口图标）
-│   │
-│   ├── scripts/                   # 前端 JavaScript 脚本
-│   │   ├── renderer.js            # 主窗口渲染逻辑
-│   │   │                          # 包含：消息收发、Markdown 渲染、设置管理、图片上传
-│   │   └── screenshot-region.js   # 截图区域选择逻辑
-│   │                              # 负责：鼠标框选区域、坐标计算、结果回传主进程
-│   │
-│   └── styles/                    # 样式表目录
-│       └── main.css               # 全局样式（悬浮窗 UI、聊天气泡、滚动条美化等）
-│
-├── dist/                          # 打包输出目录（由 electron-builder 生成，不纳入版本管理）
-│
-└── .github/                       # GitHub 相关配置
-    ├── copilot-instructions.md    # GitHub Copilot 协作规范（蜂后模式指令）
-    └── agents/                    # 自定义 AI Agent 配置文件
-        ├── 蜂后.agent.md          # 蜂后 Agent：总指挥，负责任务规划与分发
-        ├── 1号工蜂.agent.md       # 工蜂 Agent 1（功能开发）
-        ├── 2号工蜂.agent.md       # 工蜂 Agent 2（功能开发）
-        ├── 3号工蜂.agent.md       # 工蜂 Agent 3（功能开发）
-        ├── 4号工蜂.agent.md       # 工蜂 Agent 4（功能开发）
-        ├── 5号工蜂.agent.md       # 工蜂 Agent 5（功能开发）
-        ├── 6号工蜂.agent.md       # 工蜂 Agent 6（功能开发）
-        ├── 7号工蜂.agent.md       # 工蜂 Agent 7（功能开发）
-        ├── 8号工蜂.agent.md       # 工蜂 Agent 8（功能开发）
-        ├── 9号工蜂.agent.md       # 工蜂 Agent 9（功能开发）
-        ├── 10号工蜂.agent.md      # 工蜂 Agent 10（功能开发）
-        ├── 11号工蜂.agent.md      # 工蜂 Agent 11（功能开发）
-        ├── 12号工蜂.agent.md      # 工蜂 Agent 12（功能开发）
-        ├── 13号工蜂.agent.md      # 工蜂 Agent 13（功能开发）
-        ├── 14号工蜂.agent.md      # 工蜂 Agent 14（功能开发）
-        ├── 15号工蜂.agent.md      # 工蜂 Agent 15（功能开发）
-        └── 16号工蜂.agent.md      # 工蜂 Agent 16（功能开发）
+├── 360bdc321987daa2012b50e97acea4f7853cfaec_raw.jpg   # 默认亚克力背景图，打包时随应用分发
+├── main.js                                           # Electron 主进程，窗口、托盘、IPC、截图、退出清理与单实例控制
+├── preload.js                                        # 预加载桥接，向渲染进程暴露安全 API
+├── package.json                                      # 项目依赖、脚本与 electron-builder 配置
+├── package-lock.json                                 # npm 依赖锁文件
+├── README.md                                         # 项目说明文档
+├── .gitignore                                        # Git 忽略规则
+├── build/
+│   └── installer.nsh                                 # NSIS 卸载扩展脚本，强制清理进程、本地残留数据并异步删除空安装目录
+├── scripts/
+│   └── safe-build.js                                 # 安全打包脚本，负责清理进程、包装进程与隔离敏感配置
+├── src/
+│   ├── index.html                                    # 主界面 HTML，含聊天区与设置面板
+│   ├── screenshot.html                               # 区域截图选择窗口页面
+│   ├── assets/
+│   │   └── icon.png                                  # 应用图标
+│   ├── scripts/
+│   │   ├── renderer.js                               # 渲染进程交互、设置保存、背景图效果逻辑
+│   │   └── screenshot-region.js                      # 区域截图框选逻辑
+│   └── styles/
+│       └── main.css                                  # 主界面样式与文本选择等交互样式
+├── dist/                                             # 打包输出目录，由构建流程生成
+└── .github/
+    ├── copilot-instructions.md                       # Copilot 协作与项目结构规范
+    └── agents/                                       # 自定义 AI Agent 配置
 ```
 
 ---

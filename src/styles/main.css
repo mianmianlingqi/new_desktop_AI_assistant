@@ -50,6 +50,23 @@ html, body {
   user-select: none;
 }
 
+/* 仅保留窗口控制区不可选中，正文与输入区允许复制文本 */
+.chat-container,
+.welcome-message,
+.welcome-message *,
+.message,
+.message-bubble,
+.message-bubble *,
+.message-time,
+.message-input,
+.settings-body,
+.settings-body input,
+.settings-body textarea,
+.settings-body label,
+.test-result {
+  user-select: text;
+}
+
 body {
   position: relative;
   isolation: isolate;

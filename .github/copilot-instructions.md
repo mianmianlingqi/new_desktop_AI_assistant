@@ -29,7 +29,8 @@ new_desktop_AI_assistant/
 ├── README.md                                         # 项目说明文档
 ├── .gitignore                                        # Git 忽略规则
 ├── build/
-│   └── installer.nsh                                 # NSIS 卸载扩展脚本，清理本地残留数据
+│   └── installer.nsh                                 # NSIS 卸载宏：强制结束进程、删除安装目录文件、清理 AppData/Temp 残留；
+│                                                     # 并生成异步批处理脚本循环重试删除 $INSTDIR（解决卸载器自身占用导致空目录残留问题）
 ├── src/
 │   ├── index.html                                    # 主界面 HTML，含聊天区与设置面板
 │   ├── screenshot.html                               # 区域截图选择窗口页面

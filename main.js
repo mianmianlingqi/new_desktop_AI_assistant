@@ -44,6 +44,14 @@ const store = new Store({
 let mainWindow = null;
 let tray = null;
 let screenshotWindow = null;
+let isQuitting = false;
+let forceExitTimer = null;
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+
+if (!gotSingleInstanceLock) {
+  console.log(`[${new Date().toISOString()}] [INFO] 检测到已有实例正在运行，当前进程将退出。PID=${process.pid}`);
+  app.quit();
+}
 
 // 日志工具
 function log(level, message, ...args) {
@@ -54,6 +62,127 @@ function log(level, message, ...args) {
   } else {
     console.log(prefix, message, ...args);
   }
+}
+
+/**
+ * 获取应用运行时临时目录
+ * 将截图等临时文件集中到固定目录，便于退出和卸载时清理
+ */
+function getRuntimeTempDir() {
+  return path.join(app.getPath('temp'), 'desktop-ai-assistant');
+}
+
+/**
+ * 确保运行时临时目录存在
+ */
+function ensureRuntimeTempDir() {
+  const runtimeTempDir = getRuntimeTempDir();
+  fs.mkdirSync(runtimeTempDir, { recursive: true });
+  return runtimeTempDir;
+}
+
+/**
+ * 清理运行期间生成的临时文件
+ */
+function cleanupRuntimeTempFiles() {
+  const runtimeTempDir = getRuntimeTempDir();
+  if (!fs.existsSync(runtimeTempDir)) {
+    return;
+  }
+
+  try {
+    fs.rmSync(runtimeTempDir, { recursive: true, force: true });
+    log('info', `运行时临时目录已清理: ${runtimeTempDir}`);
+  } catch (err) {
+    log('error', `清理运行时临时目录失败: ${err.message}`);
+  }
+}
+
+/**
+ * 关闭辅助窗口，避免退出时残留隐藏窗口或截图窗口
+ */
+function closeAuxiliaryWindows() {
+  if (screenshotWindow && !screenshotWindow.isDestroyed()) {
+    screenshotWindow.destroy();
+    log('info', '截图窗口已销毁');
+  }
+  screenshotWindow = null;
+}
+
+/**
+ * 销毁托盘，释放托盘句柄
+ */
+function destroyTray() {
+  if (tray) {
+    tray.destroy();
+    tray = null;
+    log('info', '系统托盘已销毁');
+  }
+}
+
+/**
+ * 统一执行应用退出流程
+ */
+function requestAppQuit(source = 'unknown') {
+  if (isQuitting) {
+    log('info', `收到重复退出请求，忽略。来源: ${source}`);
+    return;
+  }
+
+  isQuitting = true;
+  log('info', `开始退出应用。来源: ${source}`);
+
+  closeAuxiliaryWindows();
+  destroyTray();
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.close();
+  }
+
+  if (forceExitTimer) {
+    clearTimeout(forceExitTimer);
+  }
+
+  forceExitTimer = setTimeout(() => {
+    log('error', '常规退出超时，执行强制退出');
+    app.exit(0);
+  }, 4000);
+
+  app.quit();
+}
+
+/**
+ * 恢复主窗口到可见并聚焦的状态
+ * 用于托盘隐藏、最小化恢复以及二次启动时复用已有实例
+ */
+function restoreMainWindow(source = 'unknown') {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    log('info', `主窗口不存在，准备重新创建。来源: ${source}`);
+    createMainWindow();
+  }
+
+  if (!mainWindow) {
+    log('error', `恢复主窗口失败，主窗口仍不可用。来源: ${source}`);
+    return;
+  }
+
+  if (mainWindow.isMinimized()) {
+    mainWindow.restore();
+  }
+
+  if (!mainWindow.isVisible()) {
+    mainWindow.show();
+  }
+
+  mainWindow.focus();
+  log('info', `主窗口已恢复到前台。来源: ${source}`);
+}
+
+if (gotSingleInstanceLock) {
+  app.on('second-instance', () => {
+    log('info', `检测到重复启动请求，已复用现有实例。主进程PID=${process.pid}`);
+    restoreMainWindow('second-instance');
+  });
 }
 
 /**
@@ -110,6 +239,17 @@ function createMainWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'src', 'index.html'));
 
+  mainWindow.on('close', (event) => {
+    if (isQuitting) {
+      log('info', '主窗口正在随应用退出一起关闭');
+      return;
+    }
+
+    event.preventDefault();
+    log('info', '主窗口关闭请求将触发真正退出');
+    requestAppQuit('main-window-close');
+  });
+
   // 保存窗口位置
   mainWindow.on('moved', () => {
     const [x, y] = mainWindow.getPosition();
@@ -153,7 +293,7 @@ function createTray() {
     tray = new Tray(trayIcon);
     
     const contextMenu = Menu.buildFromTemplate([
-      { label: '显示窗口', click: () => mainWindow && mainWindow.show() },
+      { label: '显示窗口', click: () => restoreMainWindow('tray-menu') },
       { label: '置顶切换', type: 'checkbox', checked: store.get('alwaysOnTop'), click: (item) => {
         store.set('alwaysOnTop', item.checked);
         mainWindow && mainWindow.setAlwaysOnTop(item.checked);
@@ -161,14 +301,14 @@ function createTray() {
       { type: 'separator' },
       { label: '截屏', click: () => startScreenshot() },
       { type: 'separator' },
-      { label: '退出', click: () => app.quit() }
+      { label: '退出', click: () => requestAppQuit('tray-menu') }
     ]);
 
     tray.setToolTip('Desktop AI Assistant');
     tray.setContextMenu(contextMenu);
     tray.on('click', () => {
       if (mainWindow) {
-        mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+        mainWindow.isVisible() ? mainWindow.hide() : restoreMainWindow('tray-click');
       }
     });
     log('info', '系统托盘已创建');
@@ -240,7 +380,7 @@ async function startScreenshot() {
 
     if (sources.length > 0) {
       const screenshot = sources[0].thumbnail;
-      const screenshotPath = path.join(app.getPath('temp'), `screenshot_${Date.now()}.png`);
+      const screenshotPath = path.join(ensureRuntimeTempDir(), `screenshot_${Date.now()}.png`);
       fs.writeFileSync(screenshotPath, screenshot.toPNG());
       
       log('info', `截屏已保存: ${screenshotPath}`);
@@ -335,7 +475,10 @@ async function startRegionScreenshot() {
 
 // 窗口控制
 ipcMain.on('window-minimize', () => mainWindow && mainWindow.minimize());
-ipcMain.on('window-close', () => mainWindow && mainWindow.hide());
+ipcMain.on('window-close', () => {
+  log('info', '收到窗口关闭请求，准备真正退出应用');
+  requestAppQuit('renderer-close-button');
+});
 ipcMain.on('window-toggle-top', (event, value) => {
   if (mainWindow) {
     mainWindow.setAlwaysOnTop(value);
@@ -738,45 +881,57 @@ ipcMain.handle('open-file-dialog', async () => {
 
 // ============ 应用生命周期 ============
 
-app.whenReady().then(() => {
-  log('info', 'Desktop AI Assistant 启动中...');
-  
-  createMainWindow();
-  createTray();
+if (gotSingleInstanceLock) {
+  app.on('before-quit', () => {
+    isQuitting = true;
+    closeAuxiliaryWindows();
+    destroyTray();
+  });
 
-  // 注册全局截屏快捷键
-  const shortcut = store.get('screenshotShortcut');
-  try {
-    globalShortcut.register(shortcut, () => {
-      startRegionScreenshot();
+  app.whenReady().then(() => {
+    log('info', `Desktop AI Assistant 启动中... 版本=${app.getVersion()} 主进程PID=${process.pid}`);
+    
+    createMainWindow();
+    createTray();
+
+    // 注册全局截屏快捷键
+    const shortcut = store.get('screenshotShortcut');
+    try {
+      globalShortcut.register(shortcut, () => {
+        startRegionScreenshot();
+      });
+      log('info', `截屏快捷键已注册: ${shortcut}`);
+    } catch (err) {
+      log('error', `注册快捷键失败: ${err.message}`);
+    }
+
+    app.on('activate', () => {
+      restoreMainWindow('activate');
     });
-    log('info', `截屏快捷键已注册: ${shortcut}`);
-  } catch (err) {
-    log('error', `注册快捷键失败: ${err.message}`);
-  }
+  });
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow();
+  app.on('window-all-closed', () => {
+    // macOS上保持应用运行
+    if (process.platform !== 'darwin') {
+      app.quit();
     }
   });
-});
 
-app.on('window-all-closed', () => {
-  // macOS上保持应用运行
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
-  log('info', 'Desktop AI Assistant 已退出');
-});
-
-// 安全：阻止新窗口打开
-app.on('web-contents-created', (event, contents) => {
-  contents.setWindowOpenHandler(() => {
-    return { action: 'deny' };
+  app.on('will-quit', () => {
+    if (forceExitTimer) {
+      clearTimeout(forceExitTimer);
+      forceExitTimer = null;
+    }
+    globalShortcut.unregisterAll();
+    app.releaseSingleInstanceLock();
+    cleanupRuntimeTempFiles();
+    log('info', 'Desktop AI Assistant 已退出');
   });
-});
+
+  // 安全：阻止新窗口打开
+  app.on('web-contents-created', (event, contents) => {
+    contents.setWindowOpenHandler(() => {
+      return { action: 'deny' };
+    });
+  });
+}
