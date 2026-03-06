@@ -49,6 +49,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Desktop AI Assistant",
+      "include": "build/installer.nsh",
       "installerLanguages": [
         "zh_CN",
         "en_US"

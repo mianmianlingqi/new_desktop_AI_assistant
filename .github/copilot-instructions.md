@@ -28,6 +28,8 @@ new_desktop_AI_assistant/
 ├── package-lock.json                                 # npm 依赖锁文件
 ├── README.md                                         # 项目说明文档
 ├── .gitignore                                        # Git 忽略规则
+├── build/
+│   └── installer.nsh                                 # NSIS 卸载扩展脚本，清理本地残留数据
 ├── src/
 │   ├── index.html                                    # 主界面 HTML，含聊天区与设置面板
 │   ├── screenshot.html                               # 区域截图选择窗口页面
