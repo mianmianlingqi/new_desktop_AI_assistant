@@ -285,6 +285,18 @@ body.collapsed {
   gap: 12px;
 }
 
+.chat-container,
+.message-input,
+.message-time,
+.settings-header h2,
+.settings-field label,
+.settings-field input[type="text"],
+.settings-field input[type="password"],
+.settings-field input[type="number"],
+.settings-section h3 {
+  text-shadow: var(--text-shadow-soft);
+}
+
 /* 欢迎消息 */
 .welcome-message {
   display: flex;
@@ -356,6 +368,7 @@ body.collapsed {
   font-size: 13.5px;
   line-height: 1.6;
   word-break: break-word;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.22);
 }
 
 .message.user .message-bubble {
@@ -588,6 +601,7 @@ body.collapsed {
 
 .message-input::placeholder {
   color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
 }
 
 .send-btn {
