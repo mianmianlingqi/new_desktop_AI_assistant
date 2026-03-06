@@ -296,13 +296,7 @@ body.collapsed {
   flex: 1;
   text-align: center;
   margin: auto 0;
-  padding: 24px 18px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(10, 16, 28, 0.32), rgba(10, 16, 28, 0.48));
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
+  padding: 12px 8px;
 }
 
 .welcome-title {
@@ -311,7 +305,7 @@ body.collapsed {
   color: #fff;
   margin-bottom: 8px;
   line-height: 1.05;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.28);
 }
 
 .welcome-subtitle {
