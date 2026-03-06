@@ -292,40 +292,40 @@ body.collapsed {
   align-items: center;
   justify-content: center;
   align-self: center;
-  width: min(100%, 360px);
+  width: min(100%, 300px);
   flex: 1;
   text-align: center;
   margin: auto 0;
-  padding: 34px 24px;
-  border-radius: 20px;
+  padding: 24px 18px;
+  border-radius: 18px;
   background: linear-gradient(180deg, rgba(10, 16, 28, 0.32), rgba(10, 16, 28, 0.48));
   border: 1px solid rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
 }
 
 .welcome-title {
-  font-size: 34px;
+  font-size: 28px;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   line-height: 1.05;
   text-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-subtitle {
-  font-size: 17px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.94);
-  margin-bottom: 10px;
-  line-height: 1.5;
+  margin-bottom: 8px;
+  line-height: 1.45;
   text-shadow: var(--text-shadow-soft);
 }
 
 .welcome-hint {
-  font-size: 13px;
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.78);
-  line-height: 1.55;
+  line-height: 1.5;
   text-shadow: var(--text-shadow-soft);
 }
 
