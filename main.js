@@ -31,7 +31,11 @@ const store = new Store({
     // 最大历史消息数
     maxHistory: 50,
     // 最大生成token数（越小响应越快）
-    maxTokens: 2048
+    maxTokens: 2048,
+    // 亚克力背景图片配置
+    bgImage: '',          // 背景图片 base64（JPEG 压缩后）
+    bgBlur: 10,           // 背景模糊度（px）
+    bgMaskOpacity: 0.55   // 遮罩透明度（0~1）
   }
 });
 
@@ -671,6 +675,40 @@ ipcMain.on('region-screenshot-cancel', () => {
   }
   if (mainWindow) {
     mainWindow.show();
+  }
+});
+
+// 打开背景图片选择对话框（压缩后返回 base64）
+ipcMain.handle('open-bg-image-dialog', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+    filters: [
+      { name: '图片', extensions: ['jpg', 'jpeg', 'png', 'bmp', 'webp'] }
+    ],
+    title: '选择背景图片'
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return { success: false };
+  }
+
+  try {
+    const filePath = result.filePaths[0];
+    // 使用 nativeImage 读取并压缩图片，限制最大宽度 1200px 以控制存储体积
+    const img = nativeImage.createFromPath(filePath);
+    const size = img.getSize();
+    let resized = img;
+    if (size.width > 1200) {
+      resized = img.resize({ width: 1200 });
+    }
+    // 使用 JPEG 80% 质量压缩
+    const jpegBuffer = resized.toJPEG(80);
+    const base64 = jpegBuffer.toString('base64');
+    log('info', `背景图片已选择并压缩: ${filePath}, 压缩后大小: ${Math.round(jpegBuffer.length / 1024)}KB`);
+    return { success: true, base64 };
+  } catch (err) {
+    log('error', '处理背景图片失败:', err.message);
+    return { success: false, error: err.message };
   }
 });
 

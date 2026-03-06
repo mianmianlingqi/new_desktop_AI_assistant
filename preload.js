@@ -50,6 +50,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // 文件
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
+  // 背景图片选择（返回压缩后的 base64）
+  openBgImageDialog: () => ipcRenderer.invoke('open-bg-image-dialog'),
 
   // 区域截屏（截屏窗口使用）
   onSetScreenshotBg: (callback) => {
